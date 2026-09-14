@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <vector>
 #include "05_Show.cpp"
 #include "08_Booking.cpp"
@@ -22,8 +23,8 @@ public:
     void listMovies() const {
         cout << "\n--- MOVIES CURRENTLY PLAYING ---\n";
         for (size_t i = 0; i < movies.size(); ++i)
-            cout << "[" << i + 1 << "] " << movies[i].getTitle() << " | "
-                 << movies[i].getLanguage() << " | " << movies[i].getDuration() << " min\n";
+            cout << "[" << i + 1 << "] " << movies[i].getTitle() << " | " << movies[i].getLanguage()
+                 << " | " << movies[i].getDuration() << " min\n";
     }
 
     void listShows(int movieChoice) const {
@@ -37,7 +38,7 @@ public:
     }
 
     void showSeats(int showChoice) const {
-        Show* show = getShow(showChoice);
+        const Show* show = getShow(showChoice);
         if (!show) { cout << "Invalid show choice.\n"; return; }
         show->displaySeats();
     }
@@ -51,19 +52,17 @@ public:
         Show* show = getShow(showChoice);
         if (!show || show->getMovie() != &movies[movieChoice - 1]) { cout << "Invalid show choice.\n"; return; }
         show->displaySeats();
-        string seatInput = readLine("Enter seat number(s), separated by spaces: ");
-        vector<ShowSeat*> selected = selectSeats(*show, seatInput);
+        vector<ShowSeat*> selected = selectSeats(*show, readLine("Enter seat number(s), separated by spaces: "));
         if (selected.empty()) return;
         double total = priceCalculator.calculate(selected);
         cout << "TOTAL: Rs." << total << '\n';
         unique_ptr<Payment> payment = choosePayment();
-        // Runtime polymorphism: BookingService calls the same Payment interface.
+        // Dependency Inversion + Runtime Polymorphism: depend on Payment, not a concrete method.
         if (!payment->pay(total)) {
             cout << "Payment failed. Booking NOT confirmed; seats released.\n";
             return;
         }
         for (auto* seat : selected) seat->bookSeat();
-        // Dependency inversion: service receives/uses the Payment abstraction.
         bookings.push_back(make_unique<Booking>(&customer, show, selected, total));
         Booking* booking = bookings.back().get();
         booking->confirm();
@@ -106,17 +105,14 @@ private:
         shows.emplace_back(&movies[1], &screens[0], "05:30 PM");
         shows.emplace_back(&movies[2], &screens[1], "08:30 PM");
     }
-
     bool validMovie(int choice) const { return choice >= 1 && choice <= static_cast<int>(movies.size()); }
-    Show* getShow(int choice) {
-        if (choice < 1 || choice > static_cast<int>(shows.size())) return nullptr;
-        return &shows[choice - 1];
-    }
+    Show* getShow(int choice) { if (choice < 1 || choice > static_cast<int>(shows.size())) return nullptr; return &shows[choice - 1]; }
+    const Show* getShow(int choice) const { if (choice < 1 || choice > static_cast<int>(shows.size())) return nullptr; return &shows[choice - 1]; }
 
     vector<ShowSeat*> selectSeats(Show& show, const string& input) {
         vector<ShowSeat*> selected;
-        string seatNumber;
         istringstream stream(input);
+        string seatNumber;
         while (stream >> seatNumber) {
             ShowSeat* seat = show.findShowSeat(seatNumber);
             if (!seat) { cout << "Invalid seat: " << seatNumber << "\n"; return {}; }
@@ -134,13 +130,10 @@ private:
         cout << "Invalid payment method.\n";
         return make_unique<UpiPayment>("fail");
     }
-
     static int readInt(const string& prompt) {
-        cout << prompt;
-        int value;
+        cout << prompt; int value;
         if (!(cin >> value)) { cin.clear(); cin.ignore(10000, '\n'); return -1; }
-        cin.ignore(10000, '\n');
-        return value;
+        cin.ignore(10000, '\n'); return value;
     }
     static string readLine(const string& prompt) { cout << prompt; string value; getline(cin, value); return value; }
 };
