@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include "02_Seat.cpp"
 using namespace std;
