@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <string>
 #include "05_Show.cpp"
