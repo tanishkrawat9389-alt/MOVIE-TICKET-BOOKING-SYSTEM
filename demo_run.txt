@@ -1,0 +1,47 @@
+===== MOVIE TICKET BOOKING =====
+1. Movies  2. Book  3. Cancel  4. My tickets  0. Exit
+Choose: 2
+
+--- MOVIES CURRENTLY PLAYING ---
+[1] 3 Idiots | Hindi | 170 min
+[2] Interstellar | English | 169 min
+[3] Inception | English | 148 min
+Choose movie: 1
+
+Shows for 3 Idiots:
+[1] Screen-1 | 06:00 PM
+[2] Screen-2 | 09:00 PM
+Choose show: 1
+
+3 Idiots | Screen-1 | 06:00 PM
+[ ] = AVAILABLE   [X] = BOOKED
+A1 SILVER [ ]   A2 SILVER [ ]   A3 SILVER [ ]   A4 SILVER [ ]
+B1 GOLD [ ]     B2 GOLD [ ]     B3 GOLD [ ]     B4 GOLD [ ]
+C1 PLATINUM [ ] C2 PLATINUM [ ] C3 PLATINUM [ ] C4 PLATINUM [ ]
+Enter seat number(s), separated by spaces: A1 B2
+TOTAL: Rs.400
+Pay by: 1.UPI  2.Card  3.Cash: 1
+Enter UPI ID (type fail to simulate failure): tanishk@upi
+Payment successful. Booking confirmed.
+
+================ TICKET ================
+Booking ID : BK1001
+Movie      : 3 Idiots
+Screen     : Screen-1
+Time       : 06:00 PM
+Seats      : A1, B2
+Amount     : Rs.400
+Status     : CONFIRMED
+=========================================
+
+===== EDGE CASE: FAILED PAYMENT =====
+Choose an available seat and enter "fail" as the UPI/Card reference.
+Expected: Payment failed. Booking NOT confirmed; seats remain AVAILABLE.
+
+===== EDGE CASE: ALREADY BOOKED =====
+Try A1 again on the same show.
+Expected: Seat A1 is already BOOKED. Nothing changed.
+
+===== EDGE CASE: CANCELLATION =====
+Choose 3 and enter BK1001.
+Expected: Booking cancelled. Seats are AVAILABLE again.
