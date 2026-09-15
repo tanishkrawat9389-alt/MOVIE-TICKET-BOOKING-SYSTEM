@@ -164,35 +164,35 @@ sequenceDiagram
     participant priceCalculator as PriceCalculator
     participant booking as Booking
     participant payment as Payment
+    participant upiPayment as UpiPayment
     participant ticketPrinter as TicketPrinter
 
-    customer->>+bookingService: choose movie and show
-    bookingService->>+show: displaySeats()
-    show->>+showSeat: isAvailable()
-    showSeat-->>-show: true
-    show-->>-bookingService: seat layout
+    customer->>bookingService: choose movie and show
+    bookingService->>show: displaySeats()
+    show->>showSeat: isAvailable()
+    showSeat-->>show: true
+    show-->>bookingService: seat layout
     bookingService-->>customer: seat A1 is AVAILABLE
 
-    customer->>+bookingService: select A1
-    bookingService->>+show: findShowSeat("A1")
-    show-->>-bookingService: showSeat
-    bookingService->>+priceCalculator: calculate([A1])
-    priceCalculator-->>-bookingService: ₹150
+    customer->>bookingService: select A1
+    bookingService->>show: findShowSeat("A1")
+    show-->>bookingService: showSeat
+    bookingService->>priceCalculator: calculate([A1])
+    priceCalculator-->>bookingService: ₹150
     bookingService-->>customer: total ₹150
 
-    create participant booking as Booking
-    bookingService->>+booking: «create» Booking(customer, show, A1, ₹150)
-    booking-->>-bookingService: pending booking
+    bookingService->>booking: create Booking(customer, show, A1, ₹150)
+    booking-->>bookingService: pending booking
 
-    create participant upiPayment as UpiPayment
-    bookingService->>+upiPayment: pay(₹150)
-    upiPayment-->>-bookingService: true
+    bookingService->>upiPayment: create UpiPayment(upiId)
+    bookingService->>upiPayment: pay(₹150)
+    upiPayment-->>bookingService: true
     bookingService->>showSeat: bookSeat()
     showSeat-->>bookingService: true
     bookingService->>booking: confirm()
-    bookingService->>+ticketPrinter: printTicket(booking)
-    ticketPrinter-->>-bookingService: printed
-    bookingService-->>-customer: booking confirmed + ticket
+    bookingService->>ticketPrinter: printTicket(booking)
+    ticketPrinter-->>bookingService: printed
+    bookingService-->>customer: booking confirmed + ticket
 ```
 
 ## F. Modular Working Code + Demo Run
