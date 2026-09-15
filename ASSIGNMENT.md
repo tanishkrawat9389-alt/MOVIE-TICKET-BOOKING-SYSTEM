@@ -157,14 +157,14 @@ classDiagram
 
 ```mermaid
 sequenceDiagram
-    actor customer
-    participant bookingService
-    participant show
-    participant showSeat
-    participant priceCalculator
-    participant booking
-    participant payment
-    participant ticketPrinter
+    actor customer as Customer
+    participant bookingService as BookingService
+    participant show as Show
+    participant showSeat as ShowSeat
+    participant priceCalculator as PriceCalculator
+    participant booking as Booking
+    participant payment as Payment
+    participant ticketPrinter as TicketPrinter
 
     customer->>+bookingService: choose movie and show
     bookingService->>+show: displaySeats()
@@ -184,10 +184,9 @@ sequenceDiagram
     bookingService->>+booking: «create» Booking(customer, show, A1, ₹150)
     booking-->>-bookingService: pending booking
 
-    create participant payment as UpiPayment
-    bookingService->>+payment: «create» UpiPayment(upiId)
-    bookingService->>payment: pay(₹150)
-    payment-->>-bookingService: true
+    create participant upiPayment as UpiPayment
+    bookingService->>+upiPayment: pay(₹150)
+    upiPayment-->>-bookingService: true
     bookingService->>showSeat: bookSeat()
     showSeat-->>bookingService: true
     bookingService->>booking: confirm()
